@@ -22,7 +22,8 @@ class CaloCellBuilder( Logger ):
                       HistogramPath  = "Expert", 
                       HitsKey = "Hits",
                       OutputLevel    = 1,
-                      EstimationMethod = 'OF'
+                      EstimationMethod = 'OF',
+                      DoCrosstalk = True,
                       ):
 
     Logger.__init__(self)
@@ -31,6 +32,7 @@ class CaloCellBuilder( Logger ):
     self.__outputLevel = OutputLevel
     self.__hitsKey = HitsKey
     self.__estimationMethod = EstimationMethod
+    self.__doCrosstalk = DoCrosstalk
     
     # configure
     self.configure()
@@ -72,9 +74,9 @@ class CaloCellBuilder( Logger ):
                                   NoiseStd        = seg.EletronicNoise,
                                   StartSamplingBC = seg.StartSamplingBC, 
                                 )
-
+          # if seg.CollectionKey<><><><><>
           cx = CrossTalk("CrossTalk",
-                          MinEnergy       = -10*GeV,
+                          MinEnergy       =1*GeV,
                           # input key
                           CollectionKey   = seg.CollectionKey, 
                           )
@@ -113,7 +115,18 @@ class CaloCellBuilder( Logger ):
                               )
   
           alg.PulseGenerator = pulse # for all cell
-          alg.Tools = [cx, method] # for each cell
+          if self.__doCrosstalk:
+            # print(seg.name)
+            if seg.name == 'EMB2_0' or seg.name == 'EMEC2_0' or seg.name == 'EMEC2_1':
+              # print(seg.name)
+              MSG_INFO(self, "Applying CrossTalk effect into %s sampling.",seg.name)
+              alg.Tools = [cx, method] # for each cell
+            else:
+              alg.Tools = [ method] # for each cell
+          else:
+            alg.Tools = [ method] # for each cell
+          # MSG_INFO(self, "Applying CrossTalk effect into sampling 2 of the EM Calorimeter.")
+          # alg.Tools = [cx, method] # for each cell
 
           self.__recoAlgs.append( alg )
           collectionKeys.append( seg.CollectionKey )

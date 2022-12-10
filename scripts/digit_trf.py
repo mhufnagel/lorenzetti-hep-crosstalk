@@ -35,6 +35,9 @@ parser.add_argument('--outputLevel', action='store', dest='outputLevel', require
 parser.add_argument('--estimationMethod', action='store', dest='estimationMethod', required = False, type=str, default='OF',
                     help = "The energy estimation method (OF or COF).")
 
+parser.add_argument('--simulateCrossTalk', action='store_true', dest='simulateCrossTalk', required = False,
+                    help = "If used, enable cross talk cell propagation.")
+
 
 pi = np.pi
 
@@ -77,7 +80,8 @@ try:
                                 HistogramPath = "Expert/Cells",
                                 OutputLevel   = outputLevel,
                                 HitsKey       = recordable("Hits"),
-                                EstimationMethod  = args.estimationMethod
+                                EstimationMethod  = args.estimationMethod,
+                                DoCrosstalk   = args.simulateCrossTalk,
                                 )
   calorimeter.merge(acc)
 
